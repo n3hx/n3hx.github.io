@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Booking App</title>
+    <link rel="icon" href="https://img1.wsimg.com/isteam/ip/ea7563a4-c704-4f22-86a6-272e3e27b025/TVC%20Book%20a%20Lesson-0001.png/:/cr=t:0%25,l:0%25,w:100%25,h:100%25/rs=w:365,h:365,cg:true">
+    <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
+    <script src="app.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <div class="main-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <img src="https://img1.wsimg.com/isteam/ip/ea7563a4-c704-4f22-86a6-272e3e27b025/TVC%20Book%20a%20Lesson-0001.png/:/cr=t:0%25,l:0%25,w:100%25,h:100%25/rs=w:365,h:365,cg:true" alt="Logo" class="logo">
+                
+                <!-- Search Input Field with v-model for dynamic search as you type -->
+                <input type="text" v-model="searchQuery" placeholder="Search..." class="search-bar">
+
+
+
+                <button @click="toggleForm">+ Add New Lesson</button>
+
+                <h3>Sort by</h3>
+                <label><input type="radio" v-model="sortKey" value="subject"> Subject</label>
+                <label><input type="radio" v-model="sortKey" value="location"> Location</label>
+                <label><input type="radio" v-model="sortKey" value="price"> Price</label>
+                <label><input type="radio" v-model="sortKey" value="spaces"> Availability</label>
+
+                <h3>Order</h3>
+                <label><input type="radio" v-model="sortOrder" value="asc"> Ascending</label>
+                <label><input type="radio" v-model="sortOrder" value="desc"> Descending</label>
+
+                <h3>Navigation</h3>
+                <div class="cart-icon-container">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count">{{ cartItemCount }}</span>
+                </div>
+                <button @click="toggleCart" :disabled="cart.length === 0">
+                    {{ currentPage === 'cart' ? 'Back' : 'Show Cart' }}
+                </button>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <!-- Home Page Content -->
+                <div v-if="currentPage === 'home'" class="home-page">
+                    <h1>Lesson Booking Application</h1>
+                    <div class="lessons">
+                        <div class="lesson" v-for="lesson in sortedLessons" :key="lesson.id">
+                            <img :src="lesson.icon" alt="Lesson Icon" v-if="lesson.icon">
+                            <h2>{{ lesson.subject }}</h2>
+                            <div class="buttons-container">
+                                <button @click="editLesson(lesson)">Edit</button>
+                                <button @click="deleteLesson(lesson.id)">Delete</button>
+                            </div>
+                            <p>Location: {{ lesson.location }}</p>
+                            <p>Price: £{{ lesson.price }}</p>
+                            <p>Spaces: {{ lesson.spaces }}</p>
+                            <button @click="addToCart(lesson)" :disabled="lesson.spaces === 0">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Show Cart Page Content -->
+                <div v-if="currentPage === 'cart'" class="cart-page">
+                    <h1>Shopping Cart</h1>
+                    <div v-if="cart.length === 0">
+                        <p>Your cart is empty. Please add lessons to your cart before checking out.</p>
+                    </div>
+                    <div v-else>
+                        <div class="shopping-cart">
+                            <div class="lesson" v-for="item in cart" :key="item.id">
+                                <input type="checkbox" v-model="item.selected"> 
+                                <img :src="item.icon" alt="Lesson Icon">
+                                <h2>{{ item.subject }}</h2>
+                                <p>Location: {{ item.location }}</p>
+                                <p>Price per seat: £{{ item.price }}</p>
+                                <p>Seats: 
+                                    <button @click="decreaseQuantity(item)" :disabled="item.quantity === 1">-</button>
+                                    {{ item.quantity }}
+                                    <button @click="increaseQuantity(item)">+</button>
+                                </p>
+                                <p>Total: £{{ item.price * item.quantity }}</p>
+                                <button @click="removeFromCart(item)">Remove</button>
+                            </div>
+                        </div>
+
+                        <!-- Checkout Section -->
+                        <div class="checkout checkout-info">
+                            <h2>Checkout Info</h2>
+                            <p>Total Price: £{{ totalPrice }}</p>
+    
+                            <!-- Name Field -->
+                            <label for="name">Name:</label>
+                            <input type="text" v-model="name" placeholder="Enter your name" @input="validateName">
+                            <p v-if="nameError" class="error-message">{{ nameError }}</p>
+    
+                            <!-- Phone Field -->
+                            <label for="phone">Phone:</label>
+                            <input type="text" v-model="phone" placeholder="Enter your phone number" @input="validatePhone">
+                            <p v-if="phoneError" class="error-message">{{ phoneError }}</p>
+    
+                            <!-- Checkout Button -->
+                            <button @click="checkout" :disabled="!validCheckout">Checkout</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Lesson Form Pop-Up -->
+                <div v-if="showForm" class="form-popup">
+                    <div class="form-container">
+                        <span @click="toggleForm" class="close-btn">&times;</span>
+                        <h2>Add a New Lesson</h2>
+                        <form @submit.prevent="addLesson">
+                            <label for="subject">Subject:</label>
+                            <input type="text" v-model="newLesson.subject" required>
+
+                            <label for="location">Location:</label>
+                            <input type="text" v-model="newLesson.location" required>
+
+                            <label for="price">Price:</label>
+                            <input type="number" v-model="newLesson.price" required>
+
+                            <label for="spaces">Spaces:</label>
+                            <input type="number" v-model="newLesson.spaces" required>
+
+                            <label for="icon">Icon URL:</label>
+                            <input type="text" v-model="newLesson.icon">
+
+                            <button type="submit">Add Lesson</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Success Popup -->
+                <div v-if="showPopup" class="popup">
+                    <div class="popup-content">
+                        <h2>Checkout Successful! ✔️</h2>
+                        <p>Thank you, {{ name }}!</p>
+                        <p>Your total amount is £{{ totalPrice }}.</p>
+                        <button @click="closePopup">Close</button>
+                    </div>
+                </div>
+
+                <!-- Edit Lesson Form -->
+                <div v-if="showEditForm" class="form-popup">
+                    <div class="form-container">
+                        <span @click="showEditForm = false" class="close-btn">&times;</span>
+                        <h2>Edit Lesson</h2>
+                        <form @submit.prevent="saveEditedLesson">
+                            <label for="subject">Subject:</label>
+                            <input type="text" v-model="lessonToEdit.subject" required>
+
+                            <label for="location">Location:</label>
+                            <input type="text" v-model="lessonToEdit.location" required>
+
+                            <label for="price">Price:</label>
+                            <input type="number" v-model="lessonToEdit.price" required>
+
+                            <label for="spaces">Spaces:</label>
+                            <input type="number" v-model="lessonToEdit.spaces" required>
+
+                            <label for="icon">Icon URL:</label>
+                            <input type="text" v-model="lessonToEdit.icon">
+
+                            <button type="submit">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
