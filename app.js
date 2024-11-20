@@ -6,13 +6,13 @@ new Vue({
             { id: 2, subject: 'French', location: 'Paris', price: 13, spaces: 3, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
             { id: 3, subject: 'English', location: 'Cambridge', price: 38, spaces: 4, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
             { id: 4, subject: 'Science', location: 'York', price: 80, spaces: 1, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
-            { id: 5, subject: 'Music', location: 'Bristol', price: 67, spaces: 2, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
-            //{ id: 6, subject: 'Geography', location: 'Mauritius', price: 82, spaces: 7, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
-            // Add more lessons here
+            { id: 5, subject: 'Music', location: 'Bristol', price: 67, spaces: 2, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' }
         ],
         cart: [],
-        currentPage: 'home',  // Default to Home Page
-        showForm: false,  // Control visibility of the form
+        currentPage: 'home',
+        showForm: false,
+        showPopup: false,
+        showEditForm: false, // For edit popup
         sortKey: 'subject',
         sortOrder: 'asc',
         name: '',
@@ -24,7 +24,8 @@ new Vue({
             price: 0,
             spaces: 0,
             icon: ''
-        }
+        },
+        lessonToEdit: null // Holds the lesson currently being edited
     },
     computed: {
         sortedLessons() {
@@ -41,19 +42,33 @@ new Vue({
         },
         totalPrice() {
             return this.cart.filter(item => item.selected).reduce((total, item) => total + (item.price * item.quantity), 0);
+        },
+        cartItemCount() {
+            return this.cart.reduce((total, item) => total + item.quantity, 0);
         }
     },
     methods: {
         addLesson() {
             if (this.newLesson.subject && this.newLesson.location && this.newLesson.price && this.newLesson.spaces) {
-                this.newLesson.id = this.lessons.length + 1;  // Simple ID generation
+                this.newLesson.id = this.lessons.length + 1;
                 this.lessons.push({ ...this.newLesson });
-                this.newLesson = { id: null, subject: '', location: '', price: 0, spaces: 0, icon: '' };  // Reset the form
-                this.showForm = false;  // Close form after submission
+                this.newLesson = { id: null, subject: '', location: '', price: 0, spaces: 0, icon: '' };
+                this.showForm = false;
             }
         },
         toggleForm() {
-            this.showForm = !this.showForm;  // Toggle form visibility
+            this.showForm = !this.showForm;
+        },
+        editLesson(lesson) {
+            this.lessonToEdit = { ...lesson }; // Copy lesson to edit
+            this.showEditForm = true;
+        },
+        saveEditedLesson() {
+            const index = this.lessons.findIndex(lesson => lesson.id === this.lessonToEdit.id);
+            if (index !== -1) {
+                this.lessons.splice(index, 1, this.lessonToEdit); // Update the lesson in the array
+            }
+            this.showEditForm = false; // Hide the form
         },
         addToCart(lesson) {
             if (lesson.spaces > 0) {
@@ -65,11 +80,13 @@ new Vue({
                     cartItem.quantity++;
                 }
             }
+            this.updateCartState();
         },
         removeFromCart(item) {
             const lesson = this.lessons.find(lesson => lesson.id === item.id);
             lesson.spaces += item.quantity;
             this.cart = this.cart.filter(cartItem => cartItem.id !== item.id);
+            this.updateCartState();
         },
         increaseQuantity(item) {
             const lesson = this.lessons.find(lesson => lesson.id === item.id);
@@ -86,24 +103,24 @@ new Vue({
             }
         },
         checkout() {
-            alert(`Order submitted successfully! Total: £${this.totalPrice}`);
+            this.showPopup = true;
+        },
+        closePopup() {
+            this.showPopup = false;
             this.cart = [];
             this.name = '';
             this.phone = '';
+            this.currentPage = 'home';
         },
         toggleCart() {
-            // If cart is empty, return to home page
             if (this.cart.length === 0) {
                 this.currentPage = 'home';
             } else {
                 this.currentPage = this.currentPage === 'cart' ? 'home' : 'cart';
             }
-        }
-    },
-    watch: {
-        cart(newCart) {
-            // If the cart is emptied, automatically redirect to home page
-            if (newCart.length === 0) {
+        },
+        updateCartState() {
+            if (this.cart.length === 0) {
                 this.currentPage = 'home';
             }
         }
