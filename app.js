@@ -2,14 +2,16 @@ new Vue({
     el: '#app',
     data: {
         lessons: [
-            { id: 1, subject: 'Math', location: 'London', price: 100, spaces: 5, icon: 'icon-math.png' },
-            { id: 2, subject: 'Math', location: 'Oxford', price: 100, spaces: 5, icon: 'icon-math.png' },
-            { id: 3, subject: 'English', location: 'London', price: 100, spaces: 5, icon: 'icon-english.png' },
-            { id: 4, subject: 'English', location: 'York', price: 80, spaces: 5, icon: 'icon-english.png' },
-            { id: 5, subject: 'Music', location: 'Bristol', price: 90, spaces: 5, icon: 'icon-music.png' },
+            { id: 1, subject: 'Maths', location: 'Oxford', price: 45, spaces: 5, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
+            { id: 2, subject: 'French', location: 'Paris', price: 13, spaces: 3, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
+            { id: 3, subject: 'English', location: 'Cambridge', price: 38, spaces: 4, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
+            { id: 4, subject: 'Science', location: 'York', price: 80, spaces: 1, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
+            { id: 5, subject: 'Music', location: 'Bristol', price: 67, spaces: 2, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
             // Add more lessons here
         ],
         cart: [],
+        currentPage: 'home',  // Default to Home Page
+        showForm: false,  // Control visibility of the form
         sortKey: 'subject',
         sortOrder: 'asc',
         name: '',
@@ -46,7 +48,11 @@ new Vue({
                 this.newLesson.id = this.lessons.length + 1;  // Simple ID generation
                 this.lessons.push({ ...this.newLesson });
                 this.newLesson = { id: null, subject: '', location: '', price: 0, spaces: 0, icon: '' };  // Reset the form
+                this.showForm = false;  // Close form after submission
             }
+        },
+        toggleForm() {
+            this.showForm = !this.showForm;  // Toggle form visibility
         },
         addToCart(lesson) {
             if (lesson.spaces > 0) {
