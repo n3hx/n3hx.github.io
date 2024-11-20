@@ -7,6 +7,7 @@ new Vue({
             { id: 3, subject: 'English', location: 'Cambridge', price: 38, spaces: 4, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
             { id: 4, subject: 'Science', location: 'York', price: 80, spaces: 1, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
             { id: 5, subject: 'Music', location: 'Bristol', price: 67, spaces: 2, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
+            //{ id: 6, subject: 'Geography', location: 'Mauritius', price: 82, spaces: 7, icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s' },
             // Add more lessons here
         ],
         cart: [],
@@ -89,6 +90,22 @@ new Vue({
             this.cart = [];
             this.name = '';
             this.phone = '';
+        },
+        toggleCart() {
+            // If cart is empty, return to home page
+            if (this.cart.length === 0) {
+                this.currentPage = 'home';
+            } else {
+                this.currentPage = this.currentPage === 'cart' ? 'home' : 'cart';
+            }
+        }
+    },
+    watch: {
+        cart(newCart) {
+            // If the cart is emptied, automatically redirect to home page
+            if (newCart.length === 0) {
+                this.currentPage = 'home';
+            }
         }
     }
 });

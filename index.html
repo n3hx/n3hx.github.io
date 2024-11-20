@@ -14,13 +14,9 @@
             <div class="sidebar">
                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE4yfHuJrIHCC0WAY4oV6WWcKSbOfju4csWw&s" alt="Logo" class="logo">
                 
-                <input type="text" placeholder="Search...">
+                <input type="text" placeholder="Search..." class="search-bar">
 
                 <button @click="toggleForm">+ Add New Lesson</button>
-
-                <h3>Navigate to</h3>
-                <button @click="currentPage = 'home'">Home</button>
-                <button @click="currentPage = 'cart'">Show Cart</button>
 
                 <h3>Sort by</h3>
                 <label><input type="radio" v-model="sortKey" value="subject"> Subject</label>
@@ -31,6 +27,11 @@
                 <h3>Order</h3>
                 <label><input type="radio" v-model="sortOrder" value="asc"> Ascending</label>
                 <label><input type="radio" v-model="sortOrder" value="desc"> Descending</label>
+
+                <h3>Navigation</h3>
+                <button @click="toggleCart" :disabled="cart.length === 0">
+                    {{ currentPage === 'cart' ? 'Back' : 'Show Cart' }}
+                </button>
             </div>
 
             <!-- Main Content Area -->
@@ -54,7 +55,7 @@
                 <div v-if="currentPage === 'cart'" class="cart-page">
                     <h1>Shopping Cart</h1>
                     <div v-if="cart.length === 0">
-                        <p class="error-message">Your cart is empty. Please add lessons to your cart before checking out.</p>
+                        <p>Your cart is empty. Please add lessons to your cart before checking out.</p>
                     </div>
                     <div v-else>
                         <div class="shopping-cart">
@@ -75,7 +76,7 @@
 
                         <!-- Checkout Section -->
                         <div class="checkout">
-                            <h2>Checkout</h2>
+                            <h2>Checkout Info</h2>
                             <p>Total Price: £{{ totalPrice }}</p>
                             <label for="name">Name:</label>
                             <input type="text" v-model="name" placeholder="Enter your name">
