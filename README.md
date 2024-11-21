@@ -1,2 +1,4 @@
 # Vue.js
-Front-End
+Front-End  
+CST-3144 - Coursework
+M00940320
