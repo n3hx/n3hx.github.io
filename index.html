@@ -83,13 +83,21 @@
 
                         <!-- Checkout Section -->
                         <div class="checkout checkout-info">
-                            <h2>Checkout Info</h2>
-                            <p>Total Price: £{{ totalPrice }}</p>
-                            <label for="name">Name:</label>
-                            <input type="text" v-model="name" placeholder="Enter your name">
-                            <label for="phone">Phone:</label>
-                            <input type="text" v-model="phone" placeholder="Enter your phone number">
-                            <button @click="checkout" :disabled="!validCheckout">Checkout</button>
+                        <h2>Checkout Info</h2>
+                        <p>Total Price: £{{ totalPrice }}</p>
+    
+                        <!-- Name Field -->
+                        <label for="name">Name:</label>
+                        <input type="text" v-model="name" placeholder="Enter your name" @input="validateName">
+                        <p v-if="nameError" class="error-message">{{ nameError }}</p>
+    
+                        <!-- Phone Field -->
+                        <label for="phone">Phone:</label>
+                        <input type="text" v-model="phone" placeholder="Enter your phone number" @input="validatePhone">
+                        <p v-if="phoneError" class="error-message">{{ phoneError }}</p>
+    
+                        <!-- Checkout Button -->
+                        <button @click="checkout" :disabled="!validCheckout">Checkout</button>
                         </div>
                     </div>
                 </div>
@@ -127,32 +135,6 @@
                         <p>Thank you, {{ name }}!</p>
                         <p>Your total amount is £{{ totalPrice }}.</p>
                         <button @click="closePopup">Close</button>
-                    </div>
-                </div>
-
-                <!-- Edit Lesson Form -->
-                <div v-if="showEditForm" class="form-popup">
-                    <div class="form-container">
-                        <span @click="showEditForm = false" class="close-btn">&times;</span>
-                        <h2>Edit Lesson</h2>
-                        <form @submit.prevent="saveEditedLesson">
-                            <label for="subject">Subject:</label>
-                            <input type="text" v-model="lessonToEdit.subject" required>
-
-                            <label for="location">Location:</label>
-                            <input type="text" v-model="lessonToEdit.location" required>
-
-                            <label for="price">Price:</label>
-                            <input type="number" v-model="lessonToEdit.price" required>
-
-                            <label for="spaces">Spaces:</label>
-                            <input type="number" v-model="lessonToEdit.spaces" required>
-
-                            <label for="icon">Icon URL:</label>
-                            <input type="text" v-model="lessonToEdit.icon">
-
-                            <button type="submit">Save Changes</button>
-                        </form>
                     </div>
                 </div>
             </div>

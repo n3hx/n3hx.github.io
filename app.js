@@ -12,7 +12,7 @@ new Vue({
         currentPage: 'home',
         showForm: false,
         showPopup: false,
-        showEditForm: false, // For edit popup
+        showEditForm: false,
         sortKey: 'subject',
         sortOrder: 'asc',
         name: '',
@@ -25,7 +25,9 @@ new Vue({
             spaces: 0,
             icon: ''
         },
-        lessonToEdit: null // Holds the lesson currently being edited
+        lessonToEdit: null,
+        nameError: '',
+        phoneError: ''
     },
     computed: {
         sortedLessons() {
@@ -38,7 +40,12 @@ new Vue({
             });
         },
         validCheckout() {
-            return this.name && /^[a-zA-Z]+$/.test(this.name) && this.phone && /^[0-9]+$/.test(this.phone) && this.cart.some(item => item.selected);
+            // Updated regex to allow spaces in the name
+            return (
+                this.name && /^[a-zA-Z\s]+$/.test(this.name) &&
+                this.phone && /^[0-9]+$/.test(this.phone) &&
+                this.cart.some(item => item.selected)
+            );
         },
         totalPrice() {
             return this.cart.filter(item => item.selected).reduce((total, item) => total + (item.price * item.quantity), 0);
@@ -48,6 +55,20 @@ new Vue({
         }
     },
     methods: {
+        validateName() {
+            if (!/^[a-zA-Z\s]+$/.test(this.name)) {
+                this.nameError = 'Only letters and spaces are allowed';
+            } else {
+                this.nameError = '';
+            }
+        },
+        validatePhone() {
+            if (!/^[0-9]+$/.test(this.phone)) {
+                this.phoneError = 'Only numbers are allowed';
+            } else {
+                this.phoneError = '';
+            }
+        },
         addLesson() {
             if (this.newLesson.subject && this.newLesson.location && this.newLesson.price && this.newLesson.spaces) {
                 this.newLesson.id = this.lessons.length + 1;
@@ -60,15 +81,15 @@ new Vue({
             this.showForm = !this.showForm;
         },
         editLesson(lesson) {
-            this.lessonToEdit = { ...lesson }; // Copy lesson to edit
+            this.lessonToEdit = { ...lesson };
             this.showEditForm = true;
         },
         saveEditedLesson() {
             const index = this.lessons.findIndex(lesson => lesson.id === this.lessonToEdit.id);
             if (index !== -1) {
-                this.lessons.splice(index, 1, this.lessonToEdit); // Update the lesson in the array
+                this.lessons.splice(index, 1, this.lessonToEdit);
             }
-            this.showEditForm = false; // Hide the form
+            this.showEditForm = false;
         },
         addToCart(lesson) {
             if (lesson.spaces > 0) {
@@ -103,13 +124,19 @@ new Vue({
             }
         },
         checkout() {
-            this.showPopup = true;
+            this.validateName();
+            this.validatePhone();
+            if (this.validCheckout) {
+                this.showPopup = true;
+            }
         },
         closePopup() {
             this.showPopup = false;
             this.cart = [];
             this.name = '';
             this.phone = '';
+            this.nameError = '';
+            this.phoneError = '';
             this.currentPage = 'home';
         },
         toggleCart() {
