@@ -143,11 +143,7 @@ new Vue({
             if (lesson.spaces > 0) {
                 lesson.spaces--; // Decrease available spaces
                 const item = this.cart.find(i => i._id === lesson._id);
-                if (item) {
-                    item.quantity++;
-                } else {
-                    this.cart.push({ ...lesson, quantity: 1, selected: true });
-                }
+                item ? item.quantity++ : this.cart.push({ ...lesson, quantity: 1, selected: true });
             }
         },
         // Removes an item from the cart and updates lesson spaces
