@@ -143,16 +143,25 @@ new Vue({
             if (lesson.spaces > 0) {
                 lesson.spaces--; // Decrease available spaces
                 const item = this.cart.find(i => i._id === lesson._id);
-                item ? item.quantity++ : this.cart.push({ ...lesson, quantity: 1, selected: true });
+            if (item) {
+                item.quantity++;
+            } else {
+                this.cart.push({ ...lesson, quantity: 1, selected: true });
             }
         },
         // Removes an item from the cart and updates lesson spaces
         removeFromCart(item) {
-            const lesson = this.lessons.find(lesson => lesson.id === item.id);
-            if (lesson) lesson.spaces += item.quantity; // Restore spaces
-            const itemIndex = this.cart.findIndex(cartItem => cartItem.id === item.id);
-            if (itemIndex !== -1) this.cart.splice(itemIndex, 1); // Remove item
-            if (this.cart.length === 0) this.currentPage = 'home'; // Go to home if cart is empty
+            const lesson = this.lessons.find(lesson => lesson._id === item._id);
+            if (lesson) {
+                lesson.spaces += item.quantity; // Restore the correct number of spaces
+            }
+            const itemIndex = this.cart.findIndex(cartItem => cartItem._id === item._id);
+            if (itemIndex !== -1) {
+                this.cart.splice(itemIndex, 1); // Remove the item from the cart
+            }
+            if (this.cart.length === 0) {
+                this.currentPage = 'home'; // Go to home if the cart is empty
+            }
         },
         // Increases the quantity of a cart item
         increaseQuantity(item) {
@@ -166,7 +175,8 @@ new Vue({
         decreaseQuantity(item) {
             if (item.quantity > 1) {
                 const lesson = this.lessons.find(lesson => lesson.id === item.id);
-                if (lesson) lesson.spaces++;
+                if (lesson) { lesson.spaces++;
+            }
                 item.quantity--;
             }
         },
