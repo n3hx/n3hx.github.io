@@ -86,7 +86,7 @@
                                 <p>Seats: 
                                     <button v-on:click="decreaseQuantity(item)" :disabled="item.quantity === 1">-</button>
                                     {{ item.quantity }}
-                                    <button v-on:click="increaseQuantity(item)">+</button>
+                                    <button v-on:click="increaseQuantity(item)" :disabled="lessons.find(lesson => lesson._id === item._id).spaces === 0">+</button>
                                 </p>
                                 <p>Total: £{{ item.price * item.quantity }}</p>
                                 <button v-on:click="removeFromCart(item)">Remove</button>
