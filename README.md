@@ -1,4 +1,4 @@
 # Vue.js
-Front-End  
+Front-End of e-commerce website
 CST-3144 - Coursework
 M00940320
